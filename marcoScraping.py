@@ -101,7 +101,7 @@ reservations_sorted = sorted(reservations, key=lambda x: x[1])
 
 # ソート後のデータを表示
 for classroom, time_slot in reservations_sorted:
-    print(f"{time_slot} , 教室名: {classroom}")
+    print(f"{time_slot} : {classroom}")
 
 # 8. 終了
 driver.quit()
