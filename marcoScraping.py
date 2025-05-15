@@ -2,6 +2,7 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
+from selenium.common.exceptions import WebDriverException
 import time
 import getpass
 
@@ -13,9 +14,14 @@ password = getpass.getpass("パスワードを入力してください: ")
 driver = webdriver.Chrome()
 
 # ログインページへ
-driver.get("https://marco-s.ms.dendai.ac.jp/")
-
-time.sleep(3)
+try:
+    driver.get("https://marco-s.ms.dendai.ac.jp/")
+    time.sleep(3)  # ページが完全に読み込まれるまで待機
+except WebDriverException as e:
+    print("サイトにアクセスできませんでした。IP制限の可能性があります。")
+    print(f"エラー詳細: {e}")
+    driver.quit()
+    exit()
 
 # 学籍番号とパスワードを入力
 username_input = driver.find_element(By.NAME, "login")
