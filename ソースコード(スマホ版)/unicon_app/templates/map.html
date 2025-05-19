@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>UNICON: マップ</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+</head>
+
+<body>
+  <header>
+    <h1>UNICON</h1>
+  </header>
+
+  <main class="map-container">
+    <p>施設の位置を確認できます。</p>
+
+    <div class="svg-wrapper">
+    <!-- SVGによる施設マップ -->
+    <?xml version="1.0" encoding="UTF-8"?>
+<!-- ここでのviewBoxの設定を確認 -->
+<svg id="all_map" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1512.69 977.52" width="800" height="400">
+
+  <defs>
+    <style>
+      .cls-1 {
+        font-size: 29.89px;
+      }
+
+      .cls-1, .cls-2, .cls-3, .cls-4, .cls-5 {
+        font-family: KozGoPr6N-Regular-90ms-RKSJ-H, 'Kozuka Gothic Pr6N';
+      }
+
+      .cls-2 {
+        font-size: 30.69px;
+        glyph-orientation-vertical: 0deg;
+        text-orientation: upright;
+        writing-mode: tb;
+      }
+
+      .cls-6 {
+        stroke: #b9fd48;
+        stroke-width: 4px;
+      }
+
+      .cls-6, .cls-7, .cls-8 {
+        fill: none;
+      }
+
+      .cls-6, .cls-9, .cls-10, .cls-11 {
+        stroke-miterlimit: 10;
+      }
+
+      .cls-7 {
+        stroke: #b2b0a1;
+        stroke-linejoin: round;
+        stroke-width: 40px;
+      }
+
+      .cls-9 {
+        stroke-width: 1.83px;
+      }
+
+      .cls-9, .cls-12, .cls-10, .cls-8, .cls-11 {
+        stroke: #000;
+      }
+
+      .cls-9, .cls-12, .cls-10, .cls-11 {
+        fill: #b9fd48;
+      }
+
+      .cls-13 {
+        letter-spacing: .25em;
+      }
+
+      .cls-12, .cls-10, .cls-8 {
+        stroke-width: 1.66px;
+      }
+
+      .cls-3 {
+        font-size: 29.07px;
+      }
+
+      .cls-4 {
+        font-size: 29.89px;
+      }
+
+      .cls-14 {
+        letter-spacing: .25em;
+      }
+
+      .cls-15 {
+        letter-spacing: .25em;
+      }
+
+      .cls-11 {
+        stroke-width: 1.85px;
+      }
+
+      .cls-5 {
+        font-size: 29.07px;
+      }
+
+      .cls-16 {
+        letter-spacing: .25em;
+      }
+    </style>
+  </defs>
+  <g id="univercity_map">
+    <g id="_2goukan" data-name="2goukan">
+      <rect class="cls-10" x="379.25" y="445" width="90.11" height="217.58"/>
+      <text class="cls-2" transform="translate(424.12 510.62) scale(1 .95)"><tspan x="0" y="0">２号館</tspan></text>
+    </g>
+    <g id="_3goukan" data-name="3goukan">
+      <rect class="cls-9" x="592.35" y="445" width="90.96" height="217.24"/>
+      <text class="cls-2" transform="translate(638.14 508.86) scale(1 .95)"><tspan x="0" y="0">３号館</tspan></text>
+    </g>
+    <g id="_1goukan" data-name="1goukan">
+      <polygon class="cls-10" points="653.24 195.46 653.24 281.87 470.58 281.87 470.58 429.66 379.25 429.66 379.25 195.46 653.24 195.46"/>
+      <text class="cls-3" transform="translate(456.44 246.85) scale(1.06 1)"><tspan class="cls-15" x="0" y="0">1</tspan><tspan x="23.29" y="0">号館</tspan></text>
+    </g>
+    <g id="_6goukan" data-name="6goukan">
+      <rect class="cls-10" x="683.31" y="195.46" width="244.64" height="88.03"/>
+      <text class="cls-3" transform="translate(765.51 247.26) scale(1.06 1)"><tspan class="cls-15" x="0" y="0">6</tspan><tspan x="23.29" y="0">号館</tspan></text>
+    </g>
+    <g id="_8goukan" data-name="8goukan">
+      <rect class="cls-10" x="960.35" y="195.46" width="244.64" height="88.03"/>
+      <text class="cls-3" transform="translate(1041.93 247.32) scale(1.06 1)"><tspan class="cls-15" x="0" y="0">8</tspan><tspan x="23.29" y="0">号館</tspan></text>
+    </g>
+    <g id="_9goukan" data-name="9goukan">
+      <path class="cls-10" d="m683.31,343.88v85.78s188.02.81,186.07,0l-1.95-.81v-84.97h-184.12Z"/>
+      <text class="cls-3" transform="translate(734.94 397.35) scale(1.06 1)"><tspan class="cls-15" x="0" y="0">9</tspan><tspan x="23.32" y="0">号館</tspan></text>
+    </g>
+    <g id="puraza">
+      <rect id="_1goukan-2" data-name="1goukan" class="cls-6" x="960.35" y="344.05" width="244.64" height="201.09"/>
+      <text id="puraza-2" data-name="puraza" class="cls-3" transform="translate(1039.62 456.42) scale(1.06 1)"><tspan x="0" y="0">プラザ</tspan></text>
+    </g>
+    <g id="bus_stop">
+      <text class="cls-3" transform="translate(1347.1 145.85) scale(1.06 1)"><tspan x="0" y="0">バス停</tspan></text>
+      <rect class="cls-8" x="1329.44" y="109.86" width="127.86" height="50.07"/>
+    </g>
+    <g id="tennis">
+      <rect class="cls-11" x="379.19" y="710.46" width="223.76" height="56.13"/>
+      <text class="cls-3" transform="translate(401.33 749.17) scale(1.06 1)"><tspan x="0" y="0">テニスコート</tspan></text>
+    </g>
+    <g id="gym">
+      <rect class="cls-10" x="227.42" y="790.6" width="106.55" height="100.95"/>
+      <text class="cls-3" transform="translate(235.91 848.29) scale(1.06 1)"><tspan x="0" y="0">体育館</tspan></text>
+    </g>
+    <g id="_4goukan" data-name="4goukan">
+      <polygon class="cls-12" points="230.21 129.23 137.39 217.17 93.39 175.48 186.21 87.54 230.21 129.23"/>
+      <text class="cls-4" transform="translate(138.55 188.74) rotate(-43.45) skewX(3.09)"><tspan class="cls-16" x="0" y="0">4</tspan><tspan x="23.94" y="0">号館</tspan></text>
+    </g>
+    <g id="_7goukan" data-name="7goukan">
+      <polygon class="cls-12" points="323.48 39.4 244.52 114.21 204.13 75.95 283.09 1.14 323.48 39.4"/>
+      <text class="cls-1" transform="translate(241.68 93) rotate(-43.45) skewX(3.09)"><tspan class="cls-14" x="0" y="0">7</tspan><tspan x="23.94" y="0">号館</tspan></text>
+    </g>
+    <g id="ground">
+      <rect class="cls-10" x="379.33" y="847.08" width="238.68" height="129.62"/>
+      <text class="cls-3" transform="translate(422.76 918.78) scale(1.06 1)"><tspan x="0" y="0">グラウンド</tspan></text>
+    </g>
+    <path id="road" class="cls-7" d="m12.6,864.92c54.77-44.43,134.12-120.75,187-236,83.01-180.91,27.44-297.86,99-411C390.97,71.88,632.44,62.38,751.6,51.92c52.71-4.63,127-3,127-3h561.15"/>
+    <g>
+      <path class="cls-10" d="m1511.86,368.28c0-95.45-81.67-172.82-182.42-172.82v172.82h182.42Z"/>
+      <text class="cls-3" transform="translate(1361.22 330.61) scale(1.06 1)"><tspan class="cls-15" x="0" y="0">(</tspan><tspan x="16.28" y="0">本</tspan><tspan class="cls-15" x="45.35" y="0">館</tspan><tspan x="81.69" y="0">)</tspan></text>
+      <text class="cls-5" transform="translate(1358.23 290.35)"><tspan x="0" y="0">1</tspan><tspan class="cls-13" x="16.02" y="0">0</tspan><tspan x="39.3" y="0">号館</tspan></text>
+    </g>
+    <g>
+      <polygon class="cls-10" points="1420.41 427.64 1420.41 557.31 1503.33 557.31 1503.33 662.58 1380.83 662.58 1380.83 577.5 1338.39 577.5 1338.39 427.64 1420.41 427.64"/>
+      <text class="cls-2" transform="translate(1380.71 484.31) scale(1 .95)"><tspan x="0" y="0">号館</tspan></text>
+      <text class="cls-5" transform="translate(1361.44 479.28)"><tspan x="0" y="0">12</tspan></text>
+    </g>
+    <g>
+      <rect class="cls-10" x="1439.4" y="429.66" width="52" height="109.83"/>
+      <text class="cls-2" transform="translate(1465.4 469.23) scale(1 .95)"><tspan x="0" y="0">号館</tspan></text>
+      <text class="cls-5" transform="translate(1448.01 464.7)"><tspan x="0" y="0">11</tspan></text>
+    </g>
+  </g>
+</svg>
+</div>
+
+    <!-- 施設のリストやリンク -->
+    <ul class="map-places">
+      <li><strong>図書館</strong></li>
+      <li><strong>9号館ラウンジ</strong></li>
+      <li><strong>12号館ラウンジ</strong></li>
+      <li><strong>鳩カフェ</strong></li>
+      <li><strong>komorebi</strong></li>
+      <li><strong>第一食堂</strong></li>
+    </ul>
+  </main>
+
+  <footer>
+    <small>&copy; 2025 UNICONプロジェクト</small>
+  </footer>
+
+  <nav class="bottom-nav">
+    <ul>
+      <li><a href="{{ url_for('index') }}">ホーム</a></li>
+      <li><a href="{{ url_for('map') }}">マップ</a></li>
+      <li><a href="{{ url_for('graph') }}">グラフ</a></li>
+      <li><a href="{{ url_for('search_reservation') }}">検索・予約</a></li>
+      <li><a href="{{ url_for('setting') }}">設定</a></li>
+    </ul>
+  </nav>
+
+  <script>
+    // 施設を強調表示するためのJavaScript
+    function highlightFacility(facilityId) {
+      const allFacilities = document.querySelectorAll('.facility');
+      allFacilities.forEach(facility => {
+        if (facility.id === facilityId) {
+          facility.classList.add('highlight');
+        } else {
+          facility.classList.remove('highlight');
+        }
+      });
+    }
+  </script>
+</body>
+</html>
