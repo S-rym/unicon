@@ -9,6 +9,7 @@ import getpass
 # ターミナルから学籍番号とパスワードを入力
 student_id = input("学籍番号を入力してください(英字部分は「大文字」): ")
 password = getpass.getpass("パスワードを入力してください: ")
+classtime = input("時限を入力してください: ")
 
 # ブラウザ起動（Chrome）
 driver = webdriver.Chrome()
@@ -102,12 +103,17 @@ for elem in reserved_elements:
     time_slot = get_time_slot(start_time, end_time)
     reservations.append((classroom, time_slot))
 
-# 時限でソート
-reservations_sorted = sorted(reservations, key=lambda x: x[1])
+target_slot = f"{classtime}時限"
 
-# ソート後のデータを表示
-for classroom, time_slot in reservations_sorted:
-    print(f"{time_slot} : {classroom}")
+# ソート後のデータを表示（n時限目のみ）
+found = False
+for classroom, time_slot in reservations:
+    if time_slot == target_slot:
+        print(f"{time_slot} : {classroom}")
+        found = True
+
+if not found:
+    print(f"{target_slot} の予約はありません。")
 
 # 8. 終了
 driver.quit()
