@@ -6,6 +6,7 @@ from selenium.common.exceptions import WebDriverException, TimeoutException
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import getpass
+import json
 
 # ヘッドレスモードの設定を追加
 options = webdriver.ChromeOptions()
@@ -128,15 +129,29 @@ for elem in reserved_elements:
 
 target_slot = f"{classtime}時限"
 
+unique_classrooms = set()
 # ソート後のデータを表示（n時限目のみ）
-found = False
-for classroom, time_slot in reservations:
-    if time_slot == target_slot:
-        print(f"{time_slot} : {classroom}")
-        found = True
+for elem in reserved_elements:
+    classroom_raw = elem.get_attribute("data-shisetsutip") or ""
+    classrooms = classroom_raw.replace('<br>', '\n').replace('<br />', '\n').splitlines()
 
-if not found:
-    print(f"{target_slot} の予約はありません。")
+    start_time = elem.get_attribute("data-starthms")
+    end_time = elem.get_attribute("data-endhms")
+    time_slot = get_time_slot(start_time, end_time)
+
+    if time_slot == target_slot:
+        for c in classrooms:
+            name = c.strip()
+            if name:
+                unique_classrooms.add(name)
+
+# 出力
+results = [{"classroom": name} for name in sorted(unique_classrooms)]
+if not results:
+    results.append({"classroom": None, "message": "予約なし"})
+
+print(json.dumps(results, ensure_ascii=False, indent=2))
+
 
 # 8. 終了
 driver.quit()
