@@ -5,16 +5,21 @@ from selenium.webdriver.common.action_chains import ActionChains
 from selenium.common.exceptions import WebDriverException, TimeoutException
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-import time
 import getpass
+
+# ヘッドレスモードの設定を追加
+options = webdriver.ChromeOptions()
+options.add_argument('--headless')
+options.add_argument('--disable-gpu')
+options.add_argument('--window-size=1920,1080')
 
 # ターミナルから学籍番号とパスワードを入力
 student_id = input("学籍番号を入力してください(英字部分は「大文字」): ")
 password = getpass.getpass("パスワードを入力してください: ")
 classtime = input("時限を入力してください: ")
 
-# ブラウザ起動（Chrome）
-driver = webdriver.Chrome()
+# ブラウザ起動（Chrome・ヘッドレス）
+driver = webdriver.Chrome(options=options)
 
 # ログインページへ
 try:
