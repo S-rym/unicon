@@ -2,7 +2,9 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
-from selenium.common.exceptions import WebDriverException
+from selenium.common.exceptions import WebDriverException, TimeoutException
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 import time
 import getpass
 
@@ -17,10 +19,16 @@ driver = webdriver.Chrome()
 # ログインページへ
 try:
     driver.get("https://marco-s.ms.dendai.ac.jp/")
-    time.sleep(3)  # ページが完全に読み込まれるまで待機
+    WebDriverWait(driver, 10).until(
+        EC.presence_of_element_located((By.NAME, "login"))
+    )
 except WebDriverException as e:
     print("サイトにアクセスできませんでした。IP制限の可能性があります。")
     print(f"エラー詳細: {e}")
+    driver.quit()
+    exit()
+except TimeoutException:
+    print("ログインページの読み込みに失敗しました。")
     driver.quit()
     exit()
 
@@ -32,7 +40,13 @@ username_input.send_keys(student_id)
 password_input.send_keys(password)
 password_input.send_keys(Keys.RETURN)
 
-time.sleep(3)
+# ログイン後の画面が表示されるまで待機
+WebDriverWait(driver, 10).until(
+    EC.any_of(
+        EC.presence_of_element_located((By.LINK_TEXT, "施設予約")),
+        EC.presence_of_element_located((By.XPATH, "//li[contains(text(), 'ユーザーIDまたはパスワードが正しくありません。')]"))
+    )
+)
 
 # ログイン失敗時のエラーメッセージを確認
 error_message_elements = driver.find_elements(By.XPATH, "//li[contains(text(), 'ユーザーIDまたはパスワードが正しくありません。')]")
@@ -44,37 +58,41 @@ else:
     print("ログイン成功")
 
 # 教室の利用状況ページへ移動
-hover_target = driver.find_element(By.LINK_TEXT, "施設予約") 
-
+hover_target = WebDriverWait(driver, 10).until(
+    EC.presence_of_element_located((By.LINK_TEXT, "施設予約"))
+)
 actions = ActionChains(driver)
 actions.move_to_element(hover_target).perform()
 
-time.sleep(1) 
-
-roomReserve_button = driver.find_element(By.LINK_TEXT, "施設予約状況") 
+roomReserve_button = WebDriverWait(driver, 10).until(
+    EC.element_to_be_clickable((By.LINK_TEXT, "施設予約状況"))
+)
 roomReserve_button.click()
 
-time.sleep(1)
-
-campusSelect_button = driver.find_element(By.ID, "bunruiTree") 
+campusSelect_button = WebDriverWait(driver, 10).until(
+    EC.element_to_be_clickable((By.ID, "bunruiTree"))
+)
 campusSelect_button.click()
 
-time.sleep(1)
-
-campusSelect_cbx = driver.find_element(By.CSS_SELECTOR, "label[for='cbx_1_2']")
+campusSelect_cbx = WebDriverWait(driver, 10).until(
+    EC.element_to_be_clickable((By.CSS_SELECTOR, "label[for='cbx_1_2']"))
+)
+driver.execute_script("arguments[0].scrollIntoView(true);", campusSelect_cbx)
 campusSelect_cbx.click()
 
-time.sleep(1)
-
-campusSelectAgree_button = driver.find_element(By.ID, "shisetsuTreeAgree") 
+campusSelectAgree_button = WebDriverWait(driver, 10).until(
+    EC.element_to_be_clickable((By.ID, "shisetsuTreeAgree"))
+)
 campusSelectAgree_button.click()
 
-time.sleep(1)
-
-search_button = driver.find_element(By.CSS_SELECTOR, ".btn.agree.search.search_btn")
+search_button = WebDriverWait(driver, 10).until(
+    EC.element_to_be_clickable((By.CSS_SELECTOR, ".btn.agree.search.search_btn"))
+)
 search_button.click()
 
-time.sleep(5)
+WebDriverWait(driver, 10).until(
+    EC.presence_of_all_elements_located((By.CSS_SELECTOR, 'div.schedule[data-yoyakuname="予約済み"]'))
+)
 
 # 予約済み教室名と使用時間を取得
 reserved_elements = driver.find_elements(By.CSS_SELECTOR, 'div.schedule[data-yoyakuname="予約済み"]')
