@@ -7,6 +7,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import getpass
 import json
+import sys
 
 # ヘッドレスモードの設定を追加
 options = webdriver.ChromeOptions()
@@ -15,9 +16,9 @@ options.add_argument('--disable-gpu')
 options.add_argument('--window-size=1920,1080')
 
 # ターミナルから学籍番号とパスワードを入力
-student_id = input("学籍番号を入力してください(英字部分は「大文字」): ")
-password = getpass.getpass("パスワードを入力してください: ")
-classtime = input("時限を入力してください: ")
+student_id = sys.argv[1]
+password = sys.argv[2]
+classtime = sys.argv[3]
 
 # ブラウザ起動（Chrome・ヘッドレス）
 driver = webdriver.Chrome(options=options)
