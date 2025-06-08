@@ -97,12 +97,12 @@ search_button = WebDriverWait(driver, 10).until(
 )
 search_button.click()
 
-WebDriverWait(driver, 10).until(
-    EC.presence_of_all_elements_located((By.CSS_SELECTOR, 'div.schedule[data-yoyakuname="予約済み"]'))
-)
-
-# 予約済み教室名と使用時間を取得
-reserved_elements = driver.find_elements(By.CSS_SELECTOR, 'div.schedule[data-yoyakuname="予約済み"]')
+try:
+    reserved_elements = WebDriverWait(driver, 10).until(
+        EC.presence_of_all_elements_located((By.CSS_SELECTOR, 'div.schedule[data-yoyakuname="予約済み"]'))
+    )
+except TimeoutException:
+    reserved_elements = []
 
 # 時限の時間割を定義
 time_slots = [
