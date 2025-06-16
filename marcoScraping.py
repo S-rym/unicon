@@ -9,19 +9,39 @@ import getpass
 import json
 import sys
 
-# ヘッドレスモードの設定を追加
-options = webdriver.ChromeOptions()
-options.add_argument('--headless')
-options.add_argument('--disable-gpu')
-options.add_argument('--window-size=1920,1080')
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import Options
+import tempfile
+import time
 
 # ターミナルから学籍番号とパスワードを入力
+# 引数が不足している場合にエラーを出力して終了する
+if len(sys.argv) < 4:
+    print("使用法: python3 your_script_name.py <学籍番号> <パスワード> <時限>")
+    sys.exit(1) # プログラムを終了
+
 student_id = sys.argv[1]
 password = sys.argv[2]
 classtime = sys.argv[3]
 
-# ブラウザ起動（Chrome・ヘッドレス）
-driver = webdriver.Chrome(options=options)
+# ChromeOptionsの設定
+chrome_options = Options()
+chrome_options.add_argument("--headless")
+chrome_options.add_argument("--no-sandbox")
+chrome_options.add_argument("--disable-dev-shm-usage")
+chrome_options.add_argument(f"--user-data-dir={tempfile.mkdtemp()}")
+chrome_options.add_argument("--window-size=1920,1080")
+
+# ★★★ ここを修正します！ ★★★
+# readlink -f $(which google-chrome) コマンドで得られた実際のパスをここに記述してください。
+# 例: chrome_options.binary_location = '/opt/google/chrome/google-chrome'
+chrome_options.binary_location = '/opt/google/chrome/google-chrome' # <-- ここをあなたの環境の正しいパスに置き換えてください
+
+# chromedriverの絶対パスを指定
+service = Service('/home/tatsumi/unicon_app/chromedriver-linux64/chromedriver-linux64/chromedriver')
+
+# driverの生成
+driver = webdriver.Chrome(service=service, options=chrome_options)
 
 # ログインページへ
 try:
@@ -33,11 +53,11 @@ except WebDriverException as e:
     print("サイトにアクセスできませんでした。IP制限の可能性があります。")
     print(f"エラー詳細: {e}")
     driver.quit()
-    exit()
+    sys.exit()
 except TimeoutException:
     print("ログインページの読み込みに失敗しました。")
     driver.quit()
-    exit()
+    sys.exit()
 
 # 学籍番号とパスワードを入力
 username_input = driver.find_element(By.NAME, "login")
@@ -60,7 +80,7 @@ error_message_elements = driver.find_elements(By.XPATH, "//li[contains(text(), '
 if error_message_elements:
     print("ログインに失敗しました。学籍番号またはパスワードが間違っています。")
     driver.quit()
-    exit()
+    sys.exit()
 else:
     print("ログイン成功")
 
@@ -153,6 +173,5 @@ if not results:
 
 print(json.dumps(results, ensure_ascii=False, indent=2))
 
-
-# 8. 終了
+# 終了
 driver.quit()

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>UNICON: 空き教室検索システム</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <header>
+    <h1>UNICON</h1>
+  </header>
+
+  <!-- 日付表示 -->
+  <div class="date-display" id="current-date">
+    <!-- JavaScriptで動的に日付が挿入される場所 -->
+  </div>
+
+  <!-- 空き教室情報（中央寄せ） -->
+  <div class="classroom-section">
+    <h2 id="period-title">現在の空き教室</h2>
+    <ul id="classroom-list">
+      <!-- 空き教室リストがここに表示されます -->
+    </ul>
+  </div>
+
+  <!-- 時間割表 -->
+  <div class="timetable-container">
+    <h2>時間割</h2>
+    <table class="timetable">
+      <thead>
+        <tr>
+          <th>時間帯</th>
+          <th>月</th>
+          <th>火</th>
+          <th>水</th>
+          <th>木</th>
+          <th>金</th>
+          <th>土</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><th>1限</th><td contenteditable></td><td contenteditable></td><td contenteditable></td><td contenteditable></td><td contenteditable></td><td contenteditable></td></tr>
+        <tr><th>2限</th><td contenteditable></td><td contenteditable></td><td contenteditable></td><td contenteditable></td><td contenteditable></td><td contenteditable></td></tr>
+        <tr><th>3限</th><td contenteditable></td><td contenteditable></td><td contenteditable></td><td contenteditable></td><td contenteditable></td><td contenteditable></td></tr>
+        <tr><th>4限</th><td contenteditable></td><td contenteditable></td><td contenteditable></td><td contenteditable></td><td contenteditable></td><td contenteditable></td></tr>
+        <tr><th>5限</th><td contenteditable></td><td contenteditable></td><td contenteditable></td><td contenteditable></td><td contenteditable></td><td contenteditable></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <footer>
+    <small>&copy; 2025 UNICONプロジェクト</small>
+  </footer>
+
+  <nav class="bottom-nav">
+    <ul>
+      <li><a href="{{ url_for('index') }}">ホーム</a></li>
+      <li><a href="{{ url_for('map') }}">マップ</a></li>
+      <li><a href="{{ url_for('graph') }}">グラフ</a></li>
+      <li><a href="{{ url_for('search_reservation') }}">検索・予約</a></li>
+      <li><a href="{{ url_for('setting') }}">設定</a></li>
+    </ul>
+  </nav>
+
+  <script src="{{ url_for('static', filename='js/availability.js') }}"></script>
+</body>
+</html>
