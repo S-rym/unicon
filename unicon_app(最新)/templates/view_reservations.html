@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>予約情報一覧</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; }
+        table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+        th, td { border: 1px solid #ccc; padding: 8px; }
+        th { background-color: #eee; }
+    </style>
+</head>
+<body>
+    <h1>保存された予約情報一覧</h1>
+    {% if reservations %}
+        <table>
+            <tr>
+                <th>ID</th>
+                <th>学籍番号</th>
+                <th>教室</th>
+                <th>時間帯</th>
+                <th>登録日時</th>
+            </tr>
+            {% for r in reservations %}
+            <tr>
+                <td>{{ r[0] }}</td>
+                <td>{{ r[1] }}</td>
+                <td>{{ r[2] }}</td>
+                <td>{{ r[3] }}</td>
+                <td>{{ r[4] }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    {% else %}
+        <p>保存された予約はまだありません。</p>
+    {% endif %}
+</body>
+</html>
