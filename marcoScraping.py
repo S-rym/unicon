@@ -139,6 +139,21 @@ def get_time_slot(start_time, end_time):
             return slot_name
     return "不明な時限"
 
+def parse_shisetsucdlist(code):
+    """
+    data-shisetsucdlistの値（9桁）から号館、階数、教室番号を抽出する
+    号館・階数は先頭の0を除去
+    例: 102030405 → 号館:2, 階数:3, 教室識別番号:04, 教室番号:20304
+    ただし号館が10または12のときは階数+教室識別番号を教室番号とする
+    """
+    code = str(code).zfill(9)
+    goukan = str(int(code[1:3]))  # 号館（先頭0除去）
+    floor = str(int(code[3:5]))   # 階数（先頭0除去）
+    room_id = code[5:7]           # 教室識別番号（0埋め維持）
+
+    classroom_number = f"{goukan}{floor}{room_id}"
+    return goukan, floor, classroom_number
+
 # 教室データをリストに格納
 reservations = []
 for elem in reserved_elements:
@@ -151,27 +166,62 @@ for elem in reserved_elements:
 target_slot = f"{classtime}時限"
 
 unique_classrooms = set()
+
 # ソート後のデータを表示（n時限目のみ）
 for elem in reserved_elements:
-    classroom_raw = elem.get_attribute("data-shisetsutip") or ""
-    classrooms = classroom_raw.replace('<br>', '\n').replace('<br />', '\n').splitlines()
+    code_raw = elem.get_attribute("data-shisetsucdlist") or ""
+    codes = code_raw.replace('<br>', '\n').replace('<br />', '\n').splitlines()
 
     start_time = elem.get_attribute("data-starthms")
     end_time = elem.get_attribute("data-endhms")
     time_slot = get_time_slot(start_time, end_time)
 
     if time_slot == target_slot:
-        for c in classrooms:
-            name = c.strip()
-            if name:
-                unique_classrooms.add(name)
+        for code in codes:
+            code = code.strip()
+            if code:
+                goukan, floor, classroom_number = parse_shisetsucdlist(code)
+                unique_classrooms.add((goukan, floor, classroom_number))
+#----------------------------------------------------------------------------------
+# 予約済み教室番号のセットを作成
+reserved_classroom_numbers = set(classroom_number for _, _, classroom_number in unique_classrooms)
 
-# 出力
-results = [{"classroom": name} for name in sorted(unique_classrooms)]
-if not results:
-    results.append({"classroom": None, "message": "予約なし"})
+# 教室一覧のリスト
+rooms = []
+with open('room_list.csv', encoding='utf-8-sig') as f:
+    reader = csv.DictReader(f)
+    for row in reader:
+        room_number = row["教室番号"]
+        status = 1 if room_number in reserved_classroom_numbers else 0
+        rooms.append({"教室番号": room_number, "status-code": status})
 
-print(json.dumps(results, ensure_ascii=False, indent=2))
+#----------------------------------------------------------------------------------
+
+
+def split_room_number(room_number):
+    # 5桁ゼロ埋め
+    num = room_number.zfill(5)
+    goukan = str(int(num[:2]))   # 号館（先頭0除去）
+    floor = str(int(num[2:3]))   # 階数（先頭0除去）
+    room_id = num[3:]            # 教室識別番号（0埋め維持）
+    # 号館が10または12の場合は階数+教室識別番号を教室番号とする
+    if goukan in ("10", "12"):
+        classroom_number = str(int(floor + room_id))
+    else:
+        classroom_number = str(int(num[1:]))  # 先頭0除去
+    return goukan, floor, classroom_number
+
+# status-codeが0の教室のみ出力
+available_rooms = [
+    {
+        "号館": split_room_number(room["教室番号"])[0],
+        "階数": split_room_number(room["教室番号"])[1],
+        "教室番号": split_room_number(room["教室番号"])[2]
+    }
+    for room in rooms if room["status-code"] == 0
+]
+
+print(json.dumps(available_rooms, ensure_ascii=False, indent=2))
 
 # 終了
 driver.quit()
