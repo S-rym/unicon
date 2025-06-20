@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>予約教室と空き教室一覧</title>
+  <style>
+    table {
+      border-collapse: collapse;
+      width: 45%;
+      margin: 1rem;
+      float: left;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 8px;
+      text-align: center;
+    }
+    h2 {
+      clear: both;
+    }
+  </style>
+</head>
+<body>
+  <h1>教室情報</h1>
+
+  <!-- 予約済み教室 -->
+  <h2>予約済み教室</h2>
+  <table>
+    <tr>
+      <th>学籍番号</th>
+      <th>教室</th>
+      <th>時限</th>
+      <th>登録時間</th>
+    </tr>
+    {% for res in reservations %}
+    <tr>
+      <td>{{ res.student_id }}</td>
+      <td>{{ res.classroom }}</td>
+      <td>{{ res.classtime }}</td>
+      <td>{{ res.timestamp }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+
+  <!-- 空き教室一覧 -->
+  <h2>空き教室一覧</h2>
+  <table>
+    <tr>
+      <th>号館</th>
+      <th>階数</th>
+      <th>教室番号</th>
+      <th>時限</th>
+      <th>登録時間</th>
+    </tr>
+    {% for room in available_rooms %}
+    <tr>
+      <td>{{ room.号館 }}</td>
+      <td>{{ room.階数 }}</td>
+      <td>{{ room.教室番号 }}</td>
+      <td>{{ room.classtime }}</td>
+      <td>{{ room.timestamp }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+
+  <!-- センサーログ一覧 -->
+  <h2>センサーログ一覧</h2>
+  <table style="width: 90%;">
+    <tr>
+      <th>センサーID</th>
+      <th>場所</th>
+      <th>現在人数</th>
+      <th>入室総数</th>
+      <th>退室総数</th>
+      <th>記録時間</th>
+    </tr>
+    {% for log in sensor_logs %}
+    <tr>
+      <td>{{ log.sensor_id }}</td>
+      <td>{{ log.location }}</td>
+      <td>{{ log.current_count }}</td>
+      <td>{{ log.total_entries }}</td>
+      <td>{{ log.total_exits }}</td>
+      <td>{{ log.timestamp }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+</body>
+</html>
