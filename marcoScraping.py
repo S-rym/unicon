@@ -8,7 +8,7 @@ from selenium.webdriver.support import expected_conditions as EC
 import getpass
 import json
 import sys
-
+import csv
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 import tempfile
