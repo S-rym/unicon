@@ -16,8 +16,8 @@ import time
 
 # ターミナルから学籍番号とパスワードを入力
 # 引数が不足している場合にエラーを出力して終了する
-if len(sys.argv) < 4:
-    print("使用法: python3 your_script_name.py <学籍番号> <パスワード> <時限>")
+if len(sys.argv) < 3:
+    print("使用法: python3 your_script_name.py <学籍番号> <パスワード> ")
     sys.exit(1) # プログラムを終了
 
 student_id = sys.argv[1]
@@ -152,38 +152,6 @@ def parse_shisetsucdlist(code):
 
     classroom_number = f"{goukan}{floor}{room_id}"
     return goukan, floor, classroom_number
-
-# 教室データをリストに格納
-reservations = []
-for elem in reserved_elements:
-    classroom = elem.get_attribute("data-shisetsutip")
-    start_time = elem.get_attribute("data-starthms")
-    end_time = elem.get_attribute("data-endhms")
-    time_slot = get_time_slot(start_time, end_time)
-    reservations.append((classroom, time_slot))
-
-target_slot = f"{classtime}時限"
-
-unique_classrooms = set()
-
-# ソート後のデータを表示（n時限目のみ）
-for elem in reserved_elements:
-    code_raw = elem.get_attribute("data-shisetsucdlist") or ""
-    codes = code_raw.replace('<br>', '\n').replace('<br />', '\n').splitlines()
-
-    start_time = elem.get_attribute("data-starthms")
-    end_time = elem.get_attribute("data-endhms")
-    time_slot = get_time_slot(start_time, end_time)
-
-    if time_slot == target_slot:
-        for code in codes:
-            code = code.strip()
-            if code:
-                goukan, floor, classroom_number = parse_shisetsucdlist(code)
-                unique_classrooms.add((goukan, floor, classroom_number))
-#----------------------------------------------------------------------------------
-# 予約済み教室番号のセットを作成
-reserved_classroom_numbers = set(classroom_number for _, _, classroom_number in unique_classrooms)
 
 # 予約済み教室を時限ごとにセット化
 reserved_classrooms_by_slot = {slot[0]: set() for slot in time_slots}
