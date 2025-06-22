@@ -22,7 +22,6 @@ if len(sys.argv) < 4:
 
 student_id = sys.argv[1]
 password = sys.argv[2]
-classtime = sys.argv[3]
 
 # ChromeOptionsの設定
 chrome_options = Options()
@@ -186,42 +185,55 @@ for elem in reserved_elements:
 # 予約済み教室番号のセットを作成
 reserved_classroom_numbers = set(classroom_number for _, _, classroom_number in unique_classrooms)
 
+# 予約済み教室を時限ごとにセット化
+reserved_classrooms_by_slot = {slot[0]: set() for slot in time_slots}
+for elem in reserved_elements:
+    code_raw = elem.get_attribute("data-shisetsucdlist") or ""
+    codes = code_raw.replace('<br>', '\n').replace('<br />', '\n').splitlines()
+    start_time = elem.get_attribute("data-starthms")
+    end_time = elem.get_attribute("data-endhms")
+    time_slot = get_time_slot(start_time, end_time)
+    for code in codes:
+        code = code.strip()
+        if code:
+            goukan, floor, classroom_number = parse_shisetsucdlist(code)
+            reserved_classrooms_by_slot[time_slot].add(classroom_number)
+
 # 教室一覧のリスト
 rooms = []
 with open('room_list.csv', encoding='utf-8-sig') as f:
     reader = csv.DictReader(f)
     for row in reader:
         room_number = row["教室番号"]
-        status = 1 if room_number in reserved_classroom_numbers else 0
-        rooms.append({"教室番号": room_number, "status-code": status})
-
-#----------------------------------------------------------------------------------
-
+        rooms.append({"教室番号": room_number})
 
 def split_room_number(room_number):
-    # 5桁ゼロ埋め
     num = room_number.zfill(5)
-    goukan = str(int(num[:2]))   # 号館（先頭0除去）
-    floor = str(int(num[2:3]))   # 階数（先頭0除去）
-    room_id = num[3:]            # 教室識別番号（0埋め維持）
-    # 号館が10または12の場合は階数+教室識別番号を教室番号とする
+    goukan = str(int(num[:2]))
+    floor = str(int(num[2:3]))
+    room_id = num[3:]
     if goukan in ("10", "12"):
         classroom_number = str(int(floor + room_id))
     else:
-        classroom_number = str(int(num[1:]))  # 先頭0除去
+        classroom_number = str(int(num[1:]))
     return goukan, floor, classroom_number
 
-# status-codeが0の教室のみ出力
-available_rooms = [
-    {
-        "号館": split_room_number(room["教室番号"])[0],
-        "階数": split_room_number(room["教室番号"])[1],
-        "教室番号": split_room_number(room["教室番号"])[2]
-    }
-    for room in rooms if room["status-code"] == 0
-]
+# 各時限ごとに空き教室を抽出
+all_available_rooms = {}
+for slot_name, _, _ in time_slots:
+    reserved_set = reserved_classrooms_by_slot.get(slot_name, set())
+    available_rooms = [
+        {
+            "号館": split_room_number(room["教室番号"])[0],
+            "階数": split_room_number(room["教室番号"])[1],
+            "教室番号": split_room_number(room["教室番号"])[2]
+        }
+        for room in rooms
+        if split_room_number(room["教室番号"])[2] not in reserved_set
+    ]
+    all_available_rooms[slot_name] = available_rooms
 
-print(json.dumps(available_rooms, ensure_ascii=False, indent=2))
+print(json.dumps(all_available_rooms, ensure_ascii=False, indent=2))
 
 # 終了
 driver.quit()
