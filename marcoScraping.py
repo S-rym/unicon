@@ -155,17 +155,19 @@ def parse_shisetsucdlist(code):
 
 # 予約済み教室を時限ごとにセット化
 reserved_classrooms_by_slot = {slot[0]: set() for slot in time_slots}
+reservations = []
 for elem in reserved_elements:
-    code_raw = elem.get_attribute("data-shisetsucdlist") or ""
-    codes = code_raw.replace('<br>', '\n').replace('<br />', '\n').splitlines()
+    shisetsucdlist = elem.get_attribute("data-shisetsucdlist") or ""
     start_time = elem.get_attribute("data-starthms")
     end_time = elem.get_attribute("data-endhms")
     time_slot = get_time_slot(start_time, end_time)
-    for code in codes:
-        code = code.strip()
-        if code:
-            goukan, floor, classroom_number = parse_shisetsucdlist(code)
-            reserved_classrooms_by_slot[time_slot].add(classroom_number)
+    # カンマ区切りで分割して個別に扱う
+    for code in [c.strip() for c in shisetsucdlist.split(",") if c.strip()]:
+        reservations.append((code, time_slot))
+
+for code, time_slot in reservations:
+    goukan, floor, classroom_number = parse_shisetsucdlist(code)
+    reserved_classrooms_by_slot[time_slot].add(classroom_number)
 
 # 教室一覧のリスト
 rooms = []
