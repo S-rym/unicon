@@ -95,6 +95,32 @@ document.addEventListener("DOMContentLoaded", () => {
     cell.addEventListener("click", (event) => {
       event.preventDefault();
       const menu = document.getElementById("action-menu");
+
+      const today = new Date().getDay(); // 0: 日曜, 1: 月曜, ..., 6: 土曜
+      const columnIndex = cell.cellIndex; // 1: 月, 2: 火, ..., 6: 土
+
+      let menuHtml;
+
+      if (today === 0) {
+        // 日曜なら常に編集ボタンのみ
+        menuHtml = `
+          <button onclick="handleMenuSelect('edit')">編集</button>
+        `;
+      } else if (columnIndex === today) {
+        // 曜日一致：すべてのボタン
+        menuHtml = `
+          <button onclick="handleMenuSelect('edit')">編集</button>
+          <button onclick="handleMenuSelect('search')">検索</button>
+          <button onclick="handleMenuSelect('reserve')">予約状況</button>
+        `;
+      } else {
+        // 曜日不一致：編集のみ
+        menuHtml = `
+          <button onclick="handleMenuSelect('edit')">編集</button>
+        `;
+      }
+
+      menu.innerHTML = menuHtml;
       menu.style.top = `${event.pageY}px`;
       menu.style.left = `${event.pageX}px`;
       menu.style.display = "block";

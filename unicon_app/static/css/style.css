@@ -1,7 +1,8 @@
 /* 共通の初期化 */
 body {
   font-family: 'Helvetica', sans-serif;
-  background-color: #f9f9f9;
+  background: url("/static/images/UI背景3.jpg") no-repeat center center fixed;
+  background-size: cover;
   color: #333;
   margin: 0;
   padding-bottom: 100px;
@@ -10,9 +11,27 @@ body {
   min-height: 100vh;
 }
 
+/* 背景画像を配置するレイヤー */
+.background-image {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: url("/static/images/UI背景3.jpg") no-repeat center center fixed;
+  background-size: cover;
+  z-index: -2;
+}
+
+
+
 /* ヘッダー */
 header {
-  background-color: #0aab0a;
+  background-image: url("/static/images/ヘッダー背景.jpg");  /* ← 画像を指定 */
+  background-size: cover;                                    /* ← 全体にフィット */
+  background-position: center;                               /* ← 中央に配置 */
+  background-repeat: no-repeat;                              /* ← 繰り返しなし */
+
   color: white;
   padding: 1rem 2rem;
   display: flex;
@@ -26,24 +45,67 @@ header h1 {
 }
 
 /* === index.html 用のスタイル ===;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; */
+
+.date-display {
+  font-size: 3rem;
+  font-weight: bold;
+  color: whitesmoke;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+/* ヘッダーの幅・高さに合わせた日付表示フレーム */
+.date-frame {
+  /*background-color: #7B4F24;        /* ヘッダーと違う茶色 */
+
+  background-image: url("/static/images/表示背景.jpg");  /* ← 追加 */
+  background-size: cover;                               /* ← 追加（画面にフィット） */
+  background-position: center;                          /* ← 追加（中央に配置） */
+  background-repeat: no-repeat;                         /* ← 追加（繰り返しなし） */
+
+  height: 110px;                    /* ヘッダーと同じ高さ */
+  padding: 1rem 2rem;               /* ヘッダーと同じ上下左右パディング */
+  display: flex;
+  align-items: center;              /* 縦中央揃え */
+  justify-content: center;          /* 横中央揃え */
+  color: white;
+  font-weight: bold;
+  font-size: 2.5rem;                /* ヘッダーのh1と同じフォントサイズ */
+  box-sizing: border-box;           /* パディング込みで高さ幅を計算 */
+  width: 100%;                     /* 幅いっぱいに広げる */
+
+  margin-bottom: 2rem; 
+}
+
 .classroom-section {
-  width: 70%; /* max-widthより幅のコントロールがしやすい */
-  max-width: 1000px; /* より横長に */
-  margin: 2rem auto;
+  width: 70%;
+  max-width: 1000px;
+  margin: 4rem auto;
   padding: 2rem;
-  background-color: #ffffff;
+
+  /* 背景画像の指定（ここを追加） */
+  background-image: url("/static/images/表示背景.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  
+
   display: flex;
   flex-direction: column;
-  align-items: center; /* 横方向の中央寄せ */
-  text-align: center;  /* テキストも中央 */
+  align-items: center;
+  text-align: center;
+
+  min-height: 700px;
+  margin: 2rem auto 1rem auto;
 }
+
 
 /* ここに追記（下スライド） */
 .classroom-section ul {
-  max-height: 500px;       /* 好きな高さに調整してください */
+  max-height: 600px;       /* 好きな高さに調整してください */
   overflow-y: auto;        /* 縦スクロールを有効化 */
   width: 100%;             /* 親幅いっぱいに */
   padding: 0;
@@ -55,7 +117,7 @@ header h1 {
 /* 空き教室情報のタイトル */
 .classroom-section h2 {
   font-size: 2rem; /* フォントサイズを大きく設定 */
-  color: #0aab0a;
+  color: white;
   margin-bottom: 0.5rem;
 }
 
@@ -70,6 +132,10 @@ header h1 {
   font-size: 1.5rem; /* フォントサイズを大きく設定 */
   font-weight: bold;
   padding: 0.3rem 0;
+
+  /* 以下を追加 */
+  color: black;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.6);  /* 背景との視認性を高める */
 }
 
 /* === timetable === */
@@ -97,32 +163,37 @@ header h1 {
   overflow-x: auto; /* 横スクロールを有効にする */
 }
 
-/* 時間割テーブル */
-.timetable {
-  width: 100%;
-  border-collapse: collapse;
-  text-align: center;
+/* 追加する部分 */
+.timetable-container h2 {
+  color: white;
 }
 
-/* 時間割のヘッダー */
-.timetable th,
-.timetable td {
-  border: 1px solid #ccc;
-  padding: 0.8rem; /* セルのパディングを少し小さくする */
-  font-size: 1rem; /* フォントサイズを少し小さく */
-}
-
-/* 時間割のヘッダー背景色 */
+/* ヘッダーの曜日セル（th）はそのまま背景色 */
 .timetable th {
   background-color: #e0f2e0;
 }
 
-/* 時間帯のセル */
-.timetable td {
-  min-width: 100px; /* 横幅を少し狭く */
+/* 左端の時間帯（時限数）セル（thの最初の子）背景は透明にするか元のまま */
+.timetable th:first-child {
+  background-color: #e0f2e0; /* もしくは好きな色に */
 }
 
+/* 時限数以外のtdセルの背景を白に */
+.timetable td {
+  background-color: white;
+  min-width: 100px;
+  border: 1px solid #ccc;
+  padding: 0.8rem;
+  font-size: 1rem;
+}
 
+/* th, td共通のボーダー・パディング等は必要ならまとめて */
+.timetable th,
+.timetable td {
+  border: 1px solid #ccc;
+  padding: 0.8rem;
+  font-size: 1rem;
+}
 
 /* グラフ全体を中央寄せするための親ラッパー;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; */
 .graph-container {
@@ -195,10 +266,15 @@ header h1 {
 
 /* フッター */
 footer {
+  position: fixed;
+  bottom: 80px; /* .bottom-nav より上に配置（.bottom-nav の高さに応じて調整） */
+  width: 100%;
+  background-color: #f1f1f1;
   text-align: center;
   font-size: 0.8rem;
   padding: 1rem;
-  background-color: #f1f1f1;
+  z-index: 999;
+  box-shadow: 0 -1px 4px rgba(0, 0, 0, 0.1); /* 少し影をつけて浮かせる */
 }
 
 /* ナビゲーションメニュー ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;*/
@@ -237,15 +313,6 @@ main {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-}
-
-.date-display {
-  font-size: 3rem;
-  font-weight: bold;
-  color: #0aab0a;
-  margin-top: 2rem;
-  margin-bottom: 1rem;
-  text-align: center;
 }
 
 /* map.html 用スタイル ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;*/

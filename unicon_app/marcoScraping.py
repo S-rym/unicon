@@ -5,18 +5,15 @@ from selenium.webdriver.common.action_chains import ActionChains
 from selenium.common.exceptions import WebDriverException, TimeoutException
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+import json
+import sys
+import csv
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
-
-import sys
-import json
 import tempfile
-import time
-import csv
 
-# ターミナルから学籍番号とパスワードを取得
 if len(sys.argv) < 3:
-    print("使用法: python3 marcoScraping.py <学籍番号> <パスワード>")
+    print("使用法: python3 your_script_name.py <学籍番号> <パスワード> ")
     sys.exit(1)
 
 student_id = sys.argv[1]
@@ -28,45 +25,78 @@ chrome_options.add_argument("--no-sandbox")
 chrome_options.add_argument("--disable-dev-shm-usage")
 chrome_options.add_argument(f"--user-data-dir={tempfile.mkdtemp()}")
 chrome_options.add_argument("--window-size=1920,1080")
-chrome_options.binary_location = '/opt/google/chrome/google-chrome'
 
-service = Service('/home/tatsumi/unicon_app/chromedriver-linux64/chromedriver-linux64/chromedriver')
+chrome_options.binary_location = '/opt/google/chrome/google-chrome'  # 適宜修正
+service = Service('/home/tatsumi/unicon_app/chromedriver-linux64/chromedriver-linux64/chromedriver')  # 適宜修正
+
 driver = webdriver.Chrome(service=service, options=chrome_options)
 
 try:
     driver.get("https://marco-s.ms.dendai.ac.jp/")
-    WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.NAME, "login")))
-except (WebDriverException, TimeoutException):
-    print("サイトにアクセスできませんでした。")
+    WebDriverWait(driver, 10).until(
+        EC.presence_of_element_located((By.NAME, "login"))
+    )
+except WebDriverException as e:
+    print("サイトにアクセスできませんでした。IP制限の可能性があります。")
+    print(f"エラー詳細: {e}")
+    driver.quit()
+    sys.exit()
+except TimeoutException:
+    print("ログインページの読み込みに失敗しました。")
     driver.quit()
     sys.exit()
 
 username_input = driver.find_element(By.NAME, "login")
 password_input = driver.find_element(By.NAME, "password")
+
 username_input.send_keys(student_id)
 password_input.send_keys(password)
 password_input.send_keys(Keys.RETURN)
 
-WebDriverWait(driver, 10).until(EC.any_of(
-    EC.presence_of_element_located((By.LINK_TEXT, "施設予約")),
-    EC.presence_of_element_located((By.XPATH, "//li[contains(text(), 'ユーザーIDまたはパスワードが正しくありません。')]"))
-))
+WebDriverWait(driver, 10).until(
+    EC.any_of(
+        EC.presence_of_element_located((By.LINK_TEXT, "施設予約")),
+        EC.presence_of_element_located((By.XPATH, "//li[contains(text(), 'ユーザーIDまたはパスワードが正しくありません。')]"))
+    )
+)
 
-if driver.find_elements(By.XPATH, "//li[contains(text(), 'ユーザーIDまたはパスワードが正しくありません。')]"):
-    print("ログインに失敗しました。")
+error_message_elements = driver.find_elements(By.XPATH, "//li[contains(text(), 'ユーザーIDまたはパスワードが正しくありません。')]")
+if error_message_elements:
+    print("ログインに失敗しました。学籍番号またはパスワードが間違っています。")
     driver.quit()
     sys.exit()
 
-# 施設予約状況へ移動
-hover_target = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.LINK_TEXT, "施設予約")))
-ActionChains(driver).move_to_element(hover_target).perform()
-WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.LINK_TEXT, "施設予約状況"))).click()
-WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.ID, "bunruiTree"))).click()
-cbx = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.CSS_SELECTOR, "label[for='cbx_1_2']")))
-driver.execute_script("arguments[0].scrollIntoView(true);", cbx)
-cbx.click()
-WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.ID, "shisetsuTreeAgree"))).click()
-WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.CSS_SELECTOR, ".btn.agree.search.search_btn"))).click()
+hover_target = WebDriverWait(driver, 10).until(
+    EC.presence_of_element_located((By.LINK_TEXT, "施設予約"))
+)
+actions = ActionChains(driver)
+actions.move_to_element(hover_target).perform()
+
+roomReserve_button = WebDriverWait(driver, 10).until(
+    EC.element_to_be_clickable((By.LINK_TEXT, "施設予約状況"))
+)
+roomReserve_button.click()
+
+campusSelect_button = WebDriverWait(driver, 10).until(
+    EC.element_to_be_clickable((By.ID, "bunruiTree"))
+)
+campusSelect_button.click()
+
+campusSelect_cbx = WebDriverWait(driver, 10).until(
+    EC.element_to_be_clickable((By.CSS_SELECTOR, "label[for='cbx_1_2']"))
+)
+driver.execute_script("arguments[0].scrollIntoView(true);", campusSelect_cbx)
+campusSelect_cbx.click()
+
+campusSelectAgree_button = WebDriverWait(driver, 10).until(
+    EC.element_to_be_clickable((By.ID, "shisetsuTreeAgree"))
+)
+campusSelectAgree_button.click()
+
+search_button = WebDriverWait(driver, 10).until(
+    EC.element_to_be_clickable((By.CSS_SELECTOR, ".btn.agree.search.search_btn"))
+)
+search_button.click()
 
 try:
     reserved_elements = WebDriverWait(driver, 10).until(
@@ -75,7 +105,6 @@ try:
 except TimeoutException:
     reserved_elements = []
 
-# 時限の時間割定義
 time_slots = [
     ("1時限", "090000", "110000"),
     ("2時限", "111000", "125000"),
@@ -90,77 +119,79 @@ def get_time_slot(start_time, end_time):
             return slot_name
     return "不明な時限"
 
-def parse_classroom_name(name):
-    num = ''.join(filter(str.isdigit, name))
-    if not num:
-        return None, None, name
-    num = num.zfill(5)
-    try:
-        goukan = str(int(num[:2]))
-        floor = str(int(num[2:3]))
-        room_id = num[3:]
-    except ValueError:
-        return None, None, name
-    classroom_number = str(int(floor + room_id)) if goukan in ("10", "12") else str(int(num[1:]))
+def parse_shisetsucdlist(code):
+    code = str(code).zfill(9)
+    goukan = str(int(code[1:3]))
+    floor = str(int(code[3:5]))
+    room_id = code[5:7]
+    classroom_number = f"{goukan}{floor}{room_id}"
     return goukan, floor, classroom_number
+
+reserved_classrooms_by_slot = {slot[0]: set() for slot in time_slots}
+for elem in reserved_elements:
+    code_raw = elem.get_attribute("data-shisetsucdlist") or ""
+    codes = code_raw.replace('<br>', '\n').replace('<br />', '\n').splitlines()
+    start_time = elem.get_attribute("data-starthms")
+    end_time = elem.get_attribute("data-endhms")
+    time_slot = get_time_slot(start_time, end_time)
+    for code in codes:
+        code = code.strip()
+        if code:
+            goukan, floor, classroom_number = parse_shisetsucdlist(code)
+            reserved_classrooms_by_slot[time_slot].add(classroom_number)
+
+rooms = []
+with open('room_list.csv', encoding='utf-8-sig') as f:
+    reader = csv.DictReader(f)
+    for row in reader:
+        room_number = row["教室番号"]
+        rooms.append({"教室番号": room_number})
 
 def split_room_number(room_number):
     num = room_number.zfill(5)
     goukan = str(int(num[:2]))
     floor = str(int(num[2:3]))
     room_id = num[3:]
-    classroom_number = str(int(floor + room_id)) if goukan in ("10", "12") else str(int(num[1:]))
+    if goukan in ("10", "12"):
+        classroom_number = str(int(floor + room_id))
+    else:
+        classroom_number = str(int(num[1:]))
     return goukan, floor, classroom_number
 
-all_reservations = {}
-unique_classrooms = set()
-reserved_by_slot = {f"{i}時限": set() for i in range(1, 6)}
-
-for elem in reserved_elements:
-    classroom_raw = elem.get_attribute("data-shisetsutip") or ""
-    classrooms = classroom_raw.replace('<br>', '\n').replace('<br />', '\n').splitlines()
-    start_time = elem.get_attribute("data-starthms")
-    end_time = elem.get_attribute("data-endhms")
-    time_slot = get_time_slot(start_time, end_time)
-
-    for c in classrooms:
-        name = c.strip()
-        if name and time_slot:
-            all_reservations.setdefault(time_slot, []).append({"classroom": name, "classtime": time_slot})
-
-    code_raw = elem.get_attribute("data-shisetsucdlist") or ""
-    codes = code_raw.replace('<br>', '\n').replace('<br />', '\n').splitlines()
-    for code in codes:
-        code = code.strip()
-        if code:
-            goukan, floor, classroom_number = parse_classroom_name(code)
-            if classroom_number:
-                reserved_by_slot[time_slot].add(classroom_number)
-                unique_classrooms.add((goukan, floor, classroom_number))
-
-with open('room_list.csv', encoding='utf-8-sig') as f:
-    reader = csv.DictReader(f)
-    rooms = [row["教室番号"] for row in reader]
-
-available_by_slot = {}
+# 空き教室抽出
+all_available_rooms = {}
 for slot_name, _, _ in time_slots:
-    reserved_set = reserved_by_slot[slot_name]
-    available_this_slot = []
-    for room_number in rooms:
-        goukan, floor, classroom_number = split_room_number(room_number)
-        if classroom_number not in reserved_set:
-            available_this_slot.append({
-                "号館": goukan, 
-                "階数": floor, 
-                "教室番号": classroom_number,
-                "classtime": slot_name  # ここで時限を追加
-                })
-    available_by_slot[slot_name] = available_this_slot
+    reserved_set = reserved_classrooms_by_slot.get(slot_name, set())
+    available_rooms = [
+        {
+            "号館": split_room_number(room["教室番号"])[0],
+            "階数": split_room_number(room["教室番号"])[1],
+            "教室番号": split_room_number(room["教室番号"])[2],
+        }
+        for room in rooms
+        if split_room_number(room["教室番号"])[2] not in reserved_set
+    ]
+    all_available_rooms[slot_name] = available_rooms
 
-output = {
-    "reserved": all_reservations,
-    "available": available_by_slot
+# 予約済み教室も辞書形式で用意
+all_reserved_rooms = {}
+for slot_name, _, _ in time_slots:
+    reserved_set = reserved_classrooms_by_slot.get(slot_name, set())
+    reserved_rooms = [
+        {
+            "号館": split_room_number(r)[0],
+            "階数": split_room_number(r)[1],
+            "教室番号": split_room_number(r)[2]
+        }
+        for r in reserved_set
+    ]
+    all_reserved_rooms[slot_name] = reserved_rooms
+
+output_dict = {
+    "空き教室": all_available_rooms,
+    "予約済み教室": all_reserved_rooms,
 }
 
-print(json.dumps(output, ensure_ascii=False, indent=2))
+print(json.dumps(output_dict, ensure_ascii=False, indent=2))
+
 driver.quit()
