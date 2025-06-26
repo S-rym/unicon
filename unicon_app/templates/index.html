@@ -6,14 +6,18 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
+  <div class="background-image"></div>
+  <div class="background-overlay"></div>
+  
   <header>
     <h1>UNICON</h1>
   </header>
 
   <!-- 日付表示 -->
-  <div class="date-display" id="current-date">
-    <!-- JavaScriptで動的に日付が挿入される場所 -->
-  </div>
+  <!-- ヘッダーの直後に -->
+<div class="date-frame">
+  <div class="date-display" id="current-date"></div>
+</div>
 
   <!-- 空き教室情報（中央寄せ） -->
   <div class="classroom-section">
@@ -25,7 +29,7 @@
 
   <!-- 時間割表 -->
   <div class="timetable-container">
-    <h2>時間割</h2>
+    <h2>検索・予約</h2>
     <table class="timetable">
       <thead>
         <tr>
