@@ -4,30 +4,38 @@
   <meta charset="UTF-8">
   <title>UNICON: 混雑予想グラフ</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
+
+  <video class="background-video" autoplay muted loop playsinline>
+    <source src="{{ url_for('static', filename='videos/背景動画.mp4') }}" type="video/mp4">
+    お使いのブラウザは video タグをサポートしていません。
+  </video>
+
   <header>
     <h1>UNICON</h1>
   </header>
 
+  <div class="date-frame">
+    <div class="date-display" id="current-date"></div>
+  </div>
+
   <main>
-  <div class="slider-header">
-    <button class="slider-button" onclick="prevGraph()">←</button>
-    <h2 id="graph-title">図書館の混雑予想</h2>
-    <button class="slider-button" onclick="nextGraph()">→</button>
-  </div>
+    <div class="slider-header">
+      <button class="slider-button" onclick="prevGraph()">←</button>
+      <h2 id="graph-title">図書館の混雑予想</h2>
+      <button class="slider-button" onclick="nextGraph()">→</button>
+    </div>
 
-  <div class="graph-slider">
-    <canvas id="libraryChart"></canvas>
-    <canvas id="hatocafeChart" style="display: none;"></canvas>
-    <canvas id="komorebiChart" style="display: none;"></canvas>
-    <canvas id="diningChart" style="display: none;"></canvas>
-    <canvas id="lounge9Chart" style="display: none;"></canvas>
-    <canvas id="lounge12Chart" style="display: none;"></canvas>
-  </div>
+    <div class="graph-slider">
+      <canvas id="libraryChart" width="900" height="600"></canvas>
+      <canvas id="hatocafeChart" width="900" height="600" style="display: none;"></canvas>
+      <canvas id="komorebiChart" width="900" height="600" style="display: none;"></canvas>
+      <canvas id="diningChart" width="900" height="600" style="display: none;"></canvas>
+      <canvas id="lounge9Chart" width="900" height="600" style="display: none;"></canvas>
+      <canvas id="lounge12Chart" width="900" height="600" style="display: none;"></canvas>
+    </div>
 </main>
-
 
   <footer>
     <small>&copy; 2025 UNICONプロジェクト</small>
@@ -38,13 +46,16 @@
       <li><a href="{{ url_for('index') }}">ホーム</a></li>
       <li><a href="{{ url_for('map') }}">マップ</a></li>
       <li><a href="{{ url_for('graph') }}">グラフ</a></li>
-      <!--<li><a href="{{ url_for('search_reservation') }}">検索・予約</a></li>-->
       <li><a href="{{ url_for('view_reservations') }}">データベース</a></li>
       <li><a href="{{ url_for('setting') }}">設定</a></li>
       <li><a href="{{ url_for('login') }}">ログアウト</a></li>
     </ul>
   </nav>
 
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="{{ url_for('static', filename='js/graph.js') }}"></script>
+  <!--<script src="{{ url_for('static', filename='js/availability.js') }}"></script-->
+  <script src="{{ url_for('static', filename='js/dateDisplay.js') }}"></script>
+
 </body>
 </html>

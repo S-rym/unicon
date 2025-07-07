@@ -1,36 +1,71 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UNICON ログイン</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/login_style.css') }}">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>UNICON ログイン</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/login_style.css') }}" />
 </head>
 <body>
-    <div class="login-container">
-        <h1>UNICON</h1>
-        <p class="tagline">🌿 すぐそこに、君だけの静かな空間を 🌿</p>
+  <div class="login-container">
+    <div class="login-box">
+      <h1>UNICON</h1>
+      <p class="tagline">🌿 すぐそこに、君だけの静かな空間を 🌿</p>
 
-        <form id="loginForm">
-            <div class="input-group">
-                <label for="studentId">学籍番号:</label>
-                <input type="text" id="studentId" required>
-            </div>
-            <div class="input-group">
-                <label for="password">パスワード:</label>
-                <input type="password" id="password" required>
-            </div>
-            <button type="submit">ログイン</button>
-        </form>
+      <form id="loginForm" action="#" method="POST">
+        <div class="input-group">
+          <label for="studentId">学籍番号:</label>
+          <input type="text" id="studentId" name="studentId" required />
+        </div>
+        <div class="input-group">
+          <label for="password">パスワード:</label>
+          <input type="password" id="password" name="password" required />
+        </div>
 
-        <!-- 🔽 ここから追加部分 -->
-        <form action="{{ url_for('account') }}">
-            <button type="submit" style="margin-top: 10px;">アカウント作成</button>
-        </form>
-        <!-- 🔼 ここまで -->
+        <button type="submit">ログイン</button>
+        <button type="button" id="createAccountBtn">アカウント作成</button>
+      </form>
 
-        <p id="errorMessage" class="error-message"></p>
+      <p id="errorMessage" class="error-message"></p>
     </div>
-    <script src="{{ url_for('static', filename='js/login.js') }}"></script>
+  </div>
+
+  <script>
+    function getQueryParams() {
+      const params = {};
+      window.location.search
+        .substring(1)
+        .split("&")
+        .forEach(pair => {
+          const [key, value] = pair.split("=");
+          if (key) params[decodeURIComponent(key)] = decodeURIComponent(value || "");
+        });
+      return params;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const params = getQueryParams();
+      const errorMessage = params.error;
+
+      if (errorMessage) {
+        const errorMessageDisplay = document.getElementById('errorMessage');
+        errorMessageDisplay.textContent = errorMessage;
+      }
+
+      const loginForm = document.getElementById('loginForm');
+      loginForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        const studentId = document.getElementById('studentId').value;
+        const password = document.getElementById('password').value;
+
+        window.location.href = `/game?studentId=${encodeURIComponent(studentId)}&password=${encodeURIComponent(password)}`;
+      });
+
+      document.getElementById('createAccountBtn').addEventListener('click', () => {
+        window.location.href = "{{ url_for('account') }}";
+      });
+    });
+  </script>
 </body>
 </html>

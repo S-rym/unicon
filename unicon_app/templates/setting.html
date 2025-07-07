@@ -6,11 +6,21 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
+
+  <video class="background-video" autoplay muted loop playsinline>
+  <source src="{{ url_for('static', filename='videos/背景動画.mp4') }}" type="video/mp4">
+  お使いのブラウザは video タグをサポートしていません。
+  </video>
+
   <header>
     <h1>UNICON</h1>
   </header>
 
-  
+  <!-- 日付表示 -->
+  <!-- ヘッダーの直後に -->
+<div class="date-frame">
+  <div class="date-display" id="current-date"></div>
+</div>
 
   <footer>
     <small>&copy; 2025 UNICONプロジェクト</small>

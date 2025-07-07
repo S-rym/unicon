@@ -8,9 +8,22 @@
 </head>
 
 <body>
+
+  <video class="background-video" autoplay muted loop playsinline>
+  <source src="{{ url_for('static', filename='videos/背景動画.mp4') }}" type="video/mp4">
+  お使いのブラウザは video タグをサポートしていません。
+  </video>
+
+  <div class="background-overlay"></div>
   <header>
     <h1>UNICON</h1>
   </header>
+
+    <!-- 日付表示 -->
+  <!-- ヘッダーの直後に -->
+<div class="date-frame">
+  <div class="date-display" id="current-date"></div>
+</div>
 
   <main class="map-container">
     <p>施設の位置を確認できます。</p>
@@ -241,5 +254,7 @@
       });
     }
   </script>
+
+  <script src="{{ url_for('static', filename='js/availability.js') }}"></script>
 </body>
 </html>

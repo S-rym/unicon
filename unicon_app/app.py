@@ -3,6 +3,7 @@ import subprocess
 import json
 import sqlite3
 import os
+import time  # 追加
 
 app = Flask(__name__)
 
@@ -45,10 +46,11 @@ def init_db():
     conn.commit()
     conn.close()
 
+# ✅ 全削除に修正済み
 def save_reservations_to_db(student_id, _, reservations):
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
-    c.execute('DELETE FROM reservations WHERE student_id = ?', (student_id,))
+    c.execute('DELETE FROM reservations')  # 学生ID問わず全削除
     for entry in reservations:
         classroom = entry.get('classroom')
         classtime = entry.get('classtime')
@@ -60,10 +62,11 @@ def save_reservations_to_db(student_id, _, reservations):
     conn.commit()
     conn.close()
 
+# ✅ 全削除に修正済み
 def save_available_rooms_to_db(student_id, available_data):
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
-    c.execute('DELETE FROM available_rooms WHERE student_id = ?', (student_id,))
+    c.execute('DELETE FROM available_rooms')  # 学生ID問わず全削除
     for classtime, rooms in available_data.items():
         for room in rooms:
             building = room.get('号館')
@@ -119,13 +122,17 @@ def api_login():
     except subprocess.CalledProcessError as e:
         return jsonify({
             'success': False,
-            'message': 'スクリプトの実行に失敗しました',
+            'message': 'IDまたはパスワードが間違っているか、予期せぬエラーが発生しています。',
             'details': e.stderr
         }), 500
 
 @app.route('/')
 def login():
     return render_template('login.html')
+
+@app.route('/game')
+def game():
+    return render_template('game.html')  #追加
 
 @app.route('/account')
 def account():
@@ -189,7 +196,6 @@ def view_reservations():
                            available_rooms=available_list,
                            sensor_logs=sensor_list)
 
-
 @app.route('/api/reservations', methods=['GET'])
 def api_reservations():
     conn = sqlite3.connect(DB_PATH)
@@ -218,7 +224,6 @@ def api_available_rooms():
     ]
     return jsonify({'success': True, 'available_rooms': available_rooms})
 
-# センサーデータ受信API
 @app.route('/api/sensor_data', methods=['POST'])
 def receive_sensor_data():
     data = request.get_json()

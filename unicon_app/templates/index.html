@@ -6,7 +6,11 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-  <div class="background-image"></div>
+  <video class="background-video" autoplay muted loop playsinline>
+  <source src="{{ url_for('static', filename='videos/背景動画.mp4') }}" type="video/mp4">
+  お使いのブラウザは video タグをサポートしていません。
+  </video>
+
   <div class="background-overlay"></div>
   
   <header>

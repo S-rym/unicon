@@ -1,7 +1,7 @@
 /* 共通の初期化 */
 body {
   font-family: 'Helvetica', sans-serif;
-  background: url("/static/images/UI背景3.jpg") no-repeat center center fixed;
+  /*background: url("/static/images/UI背景4.png") no-repeat center center fixed;*/
   background-size: cover;
   color: #333;
   margin: 0;
@@ -11,28 +11,46 @@ body {
   min-height: 100vh;
 }
 
-/* 背景画像を配置するレイヤー */
-.background-image {
+.background-video {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
-  background: url("/static/images/UI背景3.jpg") no-repeat center center fixed;
-  background-size: cover;
+  min-width: 100vw;
+  min-height: 100vh;
+  width: auto;
+  height: auto;
+  object-fit: cover;
   z-index: -2;
+  pointer-events: none;
+  z-index: -1;  /* ← ★ 背面に回す */
+}
+
+
+@media screen and (max-width: 768px) {
+  .background-image {
+    background-size: contain;  /* 小さい画面では画像全体表示 */
+    background-position: center top;
+    background-color: #000;
+  }
 }
 
 
 
 /* ヘッダー */
 header {
-  background-image: url("/static/images/ヘッダー背景.jpg");  /* ← 画像を指定 */
+  position: fixed;           /* ← 追加：スクロールしても固定 */
+  top: 0;                    /* ← 追加：画面上部に固定 */
+  left: 0;                   /* ← 追加：左端に合わせる */
+  width: 100%;               /* ← 追加：横幅全体に広げる */
+  z-index: 1000;             /* ← 追加：他の要素より前に表示 */
+
+  background-image: url("/static/images/ヘッダー背景3.png");  /* ← 画像を指定 */
+  /*background-color: #0aab0a; /* 黄緑系の濃い色 */
   background-size: cover;                                    /* ← 全体にフィット */
   background-position: center;                               /* ← 中央に配置 */
   background-repeat: no-repeat;                              /* ← 繰り返しなし */
 
-  color: white;
+  color: rgb(255, 255, 255);
   padding: 1rem 2rem;
   display: flex;
   align-items: center;
@@ -50,16 +68,22 @@ header h1 {
   font-size: 3rem;
   font-weight: bold;
   color: whitesmoke;
-  margin-top: 2rem;
+  margin-top: 1rem;
   margin-bottom: 1rem;
   text-align: center;
 }
 
+
 /* ヘッダーの幅・高さに合わせた日付表示フレーム */
 .date-frame {
   /*background-color: #7B4F24;        /* ヘッダーと違う茶色 */
+  position: fixed;      /* ← 追加：固定表示 */
+  top: 140px;           /* ← ヘッダー高さ分だけ下げる */
+  left: 0;              /* ← 左端に固定 */
+  width: 100%;          /* ← 幅全体に */
+  z-index: 999;         /* ← ヘッダーより少し下の階層 */
 
-  background-image: url("/static/images/表示背景.jpg");  /* ← 追加 */
+  background-image: url("/static/images/教室表示2.png");  /* ← 追加 */
   background-size: cover;                               /* ← 追加（画面にフィット） */
   background-position: center;                          /* ← 追加（中央に配置） */
   background-repeat: no-repeat;                         /* ← 追加（繰り返しなし） */
@@ -81,11 +105,10 @@ header h1 {
 .classroom-section {
   width: 70%;
   max-width: 1000px;
-  margin: 4rem auto;
+  margin: 320px auto 1rem auto;  /* ← 上に十分な余白を追加（110px + 110px + 余白） */
   padding: 2rem;
 
-  /* 背景画像の指定（ここを追加） */
-  background-image: url("/static/images/表示背景.jpg");
+  background-image: url("/static/images/教室表示2.png");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -99,7 +122,6 @@ header h1 {
   text-align: center;
 
   min-height: 700px;
-  margin: 2rem auto 1rem auto;
 }
 
 
@@ -112,7 +134,6 @@ header h1 {
   margin-top: 0.5rem;
   list-style: none;
 }
-
 
 /* 空き教室情報のタイトル */
 .classroom-section h2 {
@@ -197,31 +218,30 @@ header h1 {
 
 /* グラフ全体を中央寄せするための親ラッパー;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; */
 .graph-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
+  margin-top: 250px;  /* ★ ヘッダー(110px) + 日付表示(110px) + α */
   padding: 2rem 1rem;
-  margin: 0 auto;
-  max-width: 900px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 10;
 }
 
-/* === graph.html 用のグラフ部分 === */
 .graph-slider {
-  display: flex;
-  justify-content: center;
-  align-items: center;
   width: 100%;
-  overflow: hidden;
+  max-width: 900px;
+  margin: 0 auto;
+  position: relative;
   
 }
 
 .graph-slider canvas {
-  width: 70% !important;
-  max-width: 1000px;
-  height: 40vh !important;  /* スマホでも適切な高さに */
   display: block;
+  width: 100%;       /* 横幅は親要素幅いっぱい */
+  height: 600px;     /* 縦は固定に */
+  background-color: white;
+  
 }
+
 
 /* スライダーボタン */
 .slider-container {

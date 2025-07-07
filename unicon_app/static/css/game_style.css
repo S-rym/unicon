@@ -1,0 +1,31 @@
+/* 全体設定 */
+body {
+  margin: 0;
+  padding: 0;
+  height: 100vh;
+  overflow: hidden;
+  position: relative;
+}
+
+/* 背景動画用スタイル */
+.background-video {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: -1;  /* 背景に固定 */
+  pointer-events: none;  /* 操作対象外 */
+}
+
+/* 葉っぱの見た目 */
+.falling-leaf {
+  position: absolute;
+  width: 90px;  /* 葉っぱサイズ調整済み */
+  height: auto;
+  user-select: none;
+  cursor: pointer;
+  will-change: transform;
+  z-index: 1;  /* 背景より前に出す */
+}

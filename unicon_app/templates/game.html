@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>ゲームページ</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/game_style.css') }}">
+</head>
+<body>
+  <!-- 背景動画 -->
+  <video autoplay loop muted playsinline class="background-video">
+    <source src="{{ url_for('static', filename='videos/森林アニメ.mp4') }}" type="video/mp4" />
+    お使いのブラウザは動画タグに対応していません。
+  </video>
+
+  <script src="{{ url_for('static', filename='js/game.js') }}"></script>
+</body>
+</html>
