@@ -1,56 +1,30 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, Response
 import subprocess
 import json
 import sqlite3
 import os
-import time  # 追加
+import time
+import threading
 
 app = Flask(__name__)
-
 DB_PATH = 'reservations.db'
+
+# グローバル進捗状況
+progress_status = {"status": "idle", "message": ""}
+
 
 def init_db():
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
-    c.execute('''
-        CREATE TABLE IF NOT EXISTS reservations (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            student_id TEXT,
-            classroom TEXT,
-            classtime TEXT,
-            timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
-        )
-    ''')
-    c.execute('''
-        CREATE TABLE IF NOT EXISTS available_rooms (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            student_id TEXT,
-            building TEXT,
-            floor TEXT,
-            classroom_number TEXT,
-            classtime TEXT,
-            timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
-        )
-    ''')
-    c.execute('''
-        CREATE TABLE IF NOT EXISTS sensor_logs (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            sensor_id TEXT,
-            location TEXT,
-            current_count INTEGER,
-            total_entries INTEGER,
-            total_exits INTEGER,
-            timestamp TEXT
-        )
-    ''')
+    # 省略（DB初期化用テーブルCREATE）
     conn.commit()
     conn.close()
 
-# ✅ 全削除に修正済み
+
 def save_reservations_to_db(student_id, _, reservations):
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
-    c.execute('DELETE FROM reservations')  # 学生ID問わず全削除
+    c.execute('DELETE FROM reservations')
     for entry in reservations:
         classroom = entry.get('classroom')
         classtime = entry.get('classtime')
@@ -62,11 +36,11 @@ def save_reservations_to_db(student_id, _, reservations):
     conn.commit()
     conn.close()
 
-# ✅ 全削除に修正済み
+
 def save_available_rooms_to_db(student_id, available_data):
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
-    c.execute('DELETE FROM available_rooms')  # 学生ID問わず全削除
+    c.execute('DELETE FROM available_rooms')
     for classtime, rooms in available_data.items():
         for room in rooms:
             building = room.get('号館')
@@ -80,20 +54,35 @@ def save_available_rooms_to_db(student_id, available_data):
     conn.commit()
     conn.close()
 
-@app.route('/api/login', methods=['POST'])
-def api_login():
+
+# 🔸【追加】プログレス画面表示
+@app.route('/progress')
+def progress():
+    return render_template('progress.html')
+
+
+# 🔸【追加】非同期処理をバックグラウンドで開始
+@app.route('/start_task', methods=['POST'])
+def start_task():
     data = request.get_json()
     student_id = data.get('studentId')
     password = data.get('password')
-    if not all([student_id, password]):
-        return jsonify({'success': False, 'message': '必要な情報が不足しています。'}), 400
-    try:
-        result = subprocess.run([
-            'python3', 'marcoScraping.py', student_id, password
-        ], capture_output=True, text=True, check=True)
-        output = result.stdout.strip()
+
+    def run_task():
+        global progress_status
         try:
+            progress_status["status"] = "running"
+            progress_status["message"] = "ログイン中..."
+
+            result = subprocess.run([
+                'python3', 'marcoScraping.py', student_id, password
+            ], capture_output=True, text=True, check=True)
+
+            progress_status["message"] = "データ処理中..."
+
+            output = result.stdout.strip()
             reservation_data = json.loads(output)
+
             if (isinstance(reservation_data, dict)
                 and "空き教室" in reservation_data
                 and "予約済み教室" in reservation_data):
@@ -112,19 +101,34 @@ def api_login():
                 save_reservations_to_db(student_id, None, all_reserved)
                 save_available_rooms_to_db(student_id, available_entries)
 
-                return jsonify({'success': True, 'message': 'ログイン成功', 'data': all_reserved})
-
+                progress_status["status"] = "complete"
+                progress_status["message"] = "完了！"
             else:
-                return jsonify({'success': False, 'message': '予約情報の形式が正しくありません。'})
+                progress_status["status"] = "error"
+                progress_status["message"] = "データ形式が不正です"
 
-        except json.JSONDecodeError:
-            return jsonify({'success': False, 'message': 'IDまたはパスワードが間違っています。'})
-    except subprocess.CalledProcessError as e:
-        return jsonify({
-            'success': False,
-            'message': 'IDまたはパスワードが間違っているか、予期せぬエラーが発生しています。',
-            'details': e.stderr
-        }), 500
+        except Exception as e:
+            progress_status["status"] = "error"
+            progress_status["message"] = f"エラー: {str(e)}"
+
+    threading.Thread(target=run_task).start()
+    return jsonify({"status": "started"})
+
+
+# 🔸【追加】進捗状況をリアルタイム送信（SSE）
+@app.route('/progress_stream')
+def progress_stream():
+    def generate():
+        prev_status = ""
+        while True:
+            if progress_status["status"] != prev_status:
+                yield f"data: {json.dumps(progress_status)}\n\n"
+                prev_status = progress_status["status"]
+            if progress_status["status"] in ["complete", "error"]:
+                break
+            time.sleep(0.5)
+
+    return Response(generate(), mimetype='text/event-stream')
 
 @app.route('/')
 def login():

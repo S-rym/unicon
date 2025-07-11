@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>処理中です…</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background: linear-gradient(to bottom, #e8f5e9, #a5d6a7);
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
+
+    #progressBarContainer {
+      width: 80%;
+      max-width: 500px;
+      background-color: #e0e0e0;
+      border-radius: 8px;
+      overflow: hidden;
+      margin-top: 30px;
+    }
+
+    #progressBar {
+      height: 20px;
+      width: 0%;
+      background: linear-gradient(to right, #43a047, #81c784);
+      transition: width 0.5s ease;
+    }
+
+    #status {
+      margin-top: 20px;
+      font-size: 1.2em;
+      color: #2e7d32;
+    }
+  </style>
+</head>
+<body>
+  <h1>ログイン中...</h1>
+  <p>学内予約システムから情報を取得しています。</p>
+
+  <div id="progressBarContainer">
+    <div id="progressBar"></div>
+  </div>
+
+  <div id="status">処理中です。しばらくお待ちください。</div>
+
+  <script>
+    const progressBar = document.getElementById("progressBar");
+    const status = document.getElementById("status");
+
+    const source = new EventSource("/progress_stream");
+    source.onmessage = function(event) {
+      const data = JSON.parse(event.data);
+
+      if (data.status === "error") {
+        status.textContent = "エラーが発生しました。ログインページに戻ります。";
+        setTimeout(() => {
+          window.location.href = "/";
+        }, 2000);
+        source.close();
+        return;
+      }
+
+      let progress = 0;
+      if (data.status === "running") progress = 50;
+      else if (data.status === "complete") progress = 100;
+
+      progressBar.style.width = progress + "%";
+      status.textContent = data.message || "処理中です。しばらくお待ちください。";
+
+      if (data.status === "complete") {
+        source.close();
+        setTimeout(() => {
+          window.location.href = "/index";
+        }, 1500);
+      }
+    };
+
+    window.addEventListener("DOMContentLoaded", () => {
+      const params = new URLSearchParams(window.location.search);
+      const studentId = params.get("studentId");
+      const password = params.get("password");
+
+      fetch("/start_task", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ studentId, password })
+      });
+    });
+  </script>
+</body>
+</html>

@@ -5,12 +5,23 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>UNICON ログイン</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/login_style.css') }}" />
+
+  <!-- NProgress CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" />
+  
+  <style>
+    /* NProgressのバーの色・高さカスタマイズ例 */
+    #nprogress .bar {
+      background: #00aa88 !important;
+      height: 20px !important;
+    }
+  </style>
 </head>
 <body>
   <div class="login-container">
     <div class="login-box">
       <h1>UNICON</h1>
-      <p class="tagline">🌿 すぐそこに、君だけの静かな空間を 🌿</p>
+      <p class="tagline">🌿混雑状況管理アプリ🌿</p>
 
       <form id="loginForm" action="#" method="POST">
         <div class="input-group">
@@ -30,42 +41,10 @@
     </div>
   </div>
 
-  <script>
-    function getQueryParams() {
-      const params = {};
-      window.location.search
-        .substring(1)
-        .split("&")
-        .forEach(pair => {
-          const [key, value] = pair.split("=");
-          if (key) params[decodeURIComponent(key)] = decodeURIComponent(value || "");
-        });
-      return params;
-    }
+  <!-- NProgress JS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
 
-    document.addEventListener('DOMContentLoaded', () => {
-      const params = getQueryParams();
-      const errorMessage = params.error;
-
-      if (errorMessage) {
-        const errorMessageDisplay = document.getElementById('errorMessage');
-        errorMessageDisplay.textContent = errorMessage;
-      }
-
-      const loginForm = document.getElementById('loginForm');
-      loginForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-
-        const studentId = document.getElementById('studentId').value;
-        const password = document.getElementById('password').value;
-
-        window.location.href = `/game?studentId=${encodeURIComponent(studentId)}&password=${encodeURIComponent(password)}`;
-      });
-
-      document.getElementById('createAccountBtn').addEventListener('click', () => {
-        window.location.href = "{{ url_for('account') }}";
-      });
-    });
-  </script>
+  <!-- login.js の読み込み -->
+  <script src="{{ url_for('static', filename='js/login.js') }}"></script>
 </body>
 </html>

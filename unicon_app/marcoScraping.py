@@ -15,7 +15,7 @@ import csv
 
 # 引数チェック
 if len(sys.argv) < 3:
-    print("使用法: python3 marcoScraping.py <学籍番号> <パスワード>")
+    print("使用法: python3 marcoScraping.py <学籍番号> <パスワード>", file=sys.stderr)
     sys.exit(1)
 
 student_id = sys.argv[1]
@@ -56,12 +56,18 @@ password_input.send_keys(password)
 password_input.send_keys(Keys.RETURN)
 
 # ログイン後判定
-WebDriverWait(driver, 10).until(
-    EC.any_of(
-        EC.presence_of_element_located((By.LINK_TEXT, "施設予約")),
-        EC.presence_of_element_located((By.XPATH, "//li[contains(text(), 'ユーザーIDまたはパスワードが正しくありません。')]"))
+try:
+    WebDriverWait(driver, 10).until(
+        EC.any_of(
+            EC.presence_of_element_located((By.LINK_TEXT, "施設予約")),
+            EC.presence_of_element_located((By.XPATH, "//li[contains(text(), 'ユーザーIDまたはパスワードが正しくありません。')]"))
+        )
     )
-)
+except TimeoutException:
+    print("ログイン後のページ読み込みに失敗しました。", file=sys.stderr)
+    driver.quit()
+    sys.exit(1)
+
 if driver.find_elements(By.XPATH, "//li[contains(text(), 'ユーザーIDまたはパスワードが正しくありません。')]"):
     print("ログインに失敗しました。学籍番号またはパスワードが間違っています。", file=sys.stderr)
     driver.quit()
@@ -98,17 +104,16 @@ except TimeoutException:
 # 時限スロット定義
 time_slots = [
     ("1時限", "090000", "110000"),
-    ("2時限", "111000", "125000"),
-    ("3時限", "134000", "152000"),
-    ("4時限", "153000", "171000"),
-    ("5時限", "172000", "190000"),
+    ("2時限", "110000", "125000"),
+    ("3時限", "125000", "152000"),
+    ("4時限", "152000", "171000"),
+    ("5時限", "171000", "190000"),
 ]
 
 def get_time_slot(start_time, end_time):
     for slot_name, slot_start, slot_end in time_slots:
         if slot_start <= start_time <= slot_end and slot_start <= end_time <= slot_end:
             return slot_name
-    # 警告を標準エラー出力に表示
     print(f"[警告] 不明な時限: start={start_time}, end={end_time}", file=sys.stderr)
     return "不明な時限"
 
@@ -120,7 +125,6 @@ def parse_shisetsucdlist(code):
     classroom_number = f"{goukan}{floor}{room_id}"
     return goukan, floor, classroom_number
 
-# 予約済み教室の分類（defaultdictで不明時限も含め安全に）
 reserved_classrooms_by_slot = defaultdict(set)
 
 for elem in reserved_elements:
@@ -135,7 +139,6 @@ for elem in reserved_elements:
             goukan, floor, classroom_number = parse_shisetsucdlist(code)
             reserved_classrooms_by_slot[time_slot].add(classroom_number)
 
-# 教室リスト読み込み
 rooms = []
 with open('room_list.csv', encoding='utf-8-sig') as f:
     reader = csv.DictReader(f)
@@ -154,9 +157,8 @@ def split_room_number(room_number):
         classroom_number = str(int(num[1:]))
     return goukan, floor, classroom_number
 
-# 空き教室抽出（不明な時限も含む）
 all_available_rooms = {}
-for slot_name in reserved_classrooms_by_slot:  # ここを修正
+for slot_name in reserved_classrooms_by_slot:
     reserved_set = reserved_classrooms_by_slot[slot_name]
     available_rooms = [
         {
@@ -169,9 +171,8 @@ for slot_name in reserved_classrooms_by_slot:  # ここを修正
     ]
     all_available_rooms[slot_name] = available_rooms
 
-# 予約済み教室も辞書形式で用意（不明な時限含む）
 all_reserved_rooms = {}
-for slot_name in reserved_classrooms_by_slot:  # ここも修正
+for slot_name in reserved_classrooms_by_slot:
     reserved_set = reserved_classrooms_by_slot[slot_name]
     reserved_rooms = [
         {
@@ -183,7 +184,6 @@ for slot_name in reserved_classrooms_by_slot:  # ここも修正
     ]
     all_reserved_rooms[slot_name] = reserved_rooms
 
-# JSON出力
 output_dict = {
     "空き教室": all_available_rooms,
     "予約済み教室": all_reserved_rooms,
