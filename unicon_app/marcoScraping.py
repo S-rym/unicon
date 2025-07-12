@@ -12,6 +12,10 @@ import tempfile
 import json
 import sys
 import csv
+import base64
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.asymmetric import padding
+from cryptography.hazmat.primitives import hashes
 
 # 引数チェック
 if len(sys.argv) < 3:
@@ -20,6 +24,31 @@ if len(sys.argv) < 3:
 
 student_id = sys.argv[1]
 password = sys.argv[2]
+
+# --- パスワード復号処理を追加 ---
+def decrypt_password(encrypted_password_b64, private_key_path):
+    with open(private_key_path, "rb") as key_file:
+        private_key = serialization.load_pem_private_key(
+            key_file.read(),
+            password=None,
+        )
+    encrypted_password = base64.b64decode(encrypted_password_b64)
+    decrypted = private_key.decrypt(
+        encrypted_password,
+        padding.OAEP(
+            mgf=padding.MGF1(algorithm=hashes.SHA256()),
+            algorithm=hashes.SHA256(),
+            label=None
+        )
+    )
+    return decrypted.decode("utf-8")
+
+# コマンドライン引数から受け取ったパスワードを復号
+#★★★★★★★★★★★★★★★★★★★★★★
+# ここでprivate_key.pemのパスを指定する必要がある
+private_key_path = "private_key.pem"  
+#★★★★★★★★★★★★★★★★★★★★★★
+password = decrypt_password(password, private_key_path)
 
 # Chromeオプション設定
 chrome_options = Options()
